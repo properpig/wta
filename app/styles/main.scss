@@ -1,0 +1,438 @@
+/*
+ * Web Starter Kit
+ *
+ * Multi-screen layout styles for your page. Brought to you by the
+ * Web Starter Kit team.
+ *
+ */
+@import '_h5bp';
+
+/*
+ * Visual Style Guide styles
+ * Remove if you prefer to use a CSS library, like Bootstrap
+ */
+@import 'components/components';
+@import '_custom_vars';
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  position: relative;
+  font-family: 'Lato', Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  background-color: #fff;
+  box-sizing: border-box;
+  min-height: 100%;
+}
+
+body.open {
+  overflow: hidden;
+}
+
+.app-bar {
+  display: block;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: $base-800;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.app-bar-container {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  width: 100%;
+  height: $app-bar-height;
+  position: relative;
+  -webkit-flex-direction: row;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  margin: 0 auto;
+}
+
+.app-title {
+  color: white;
+  font-size: 1.5em;
+  height: 100%;
+
+  img {
+    height: 100%;
+  }
+
+}
+
+.app-bar.open,
+.app-bar.open ~ main {
+  -webkit-transform: translate(250px, 0);
+          transform: translate(250px, 0);
+}
+
+.app-bar button {
+  height: 100%;
+  padding: 0px 8px;
+  background-image: none;
+  background-color: transparent;
+  border: none;
+  display: inline-block;
+  -webkit-transition: background-color 0.2s ease-out;
+          transition: background-color 0.2s ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-bar button img {
+  height: 35px;
+  width: 35px;
+}
+
+.app-bar button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.app-bar button:focus {
+  background-color: rgba(255, 255, 255, 0.2);
+  outline: 0;
+}
+
+.app-bar button:active {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.app-bar .refresh {
+  float: right;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  height: 100%;
+}
+
+.base,
+p,
+ul,
+ol {
+  font-size: 19px;
+}
+
+.navdrawer-container {
+  z-index: 1;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 250px;
+  height: 100%;
+  background-color: $base-500;
+  color: #fefefe;
+  -webkit-transform: translate(-250px, 0);
+          transform: translate(-250px, 0);
+  overflow-y: auto;
+}
+
+.navdrawer-container.open {
+  -webkit-transform: translate(0, 0);
+          transform: translate(0, 0);
+}
+
+.app-bar,
+.navdrawer-container.opened,
+main {
+  -webkit-transition: -webkit-transform 0.3s ease-out;
+          transition: transform 0.3s ease-out;
+}
+
+.navdrawer-container h4,
+.navdrawer-container ul li a {
+  height: $app-bar-height;
+  padding: 17px 20px;
+  line-height: 1.2;
+}
+
+.navdrawer-container h4 {
+  background-color: white;
+  color: $base-800;
+}
+
+.navdrawer-container ul {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+
+.navdrawer-container ul li a {
+  display: block;
+  text-decoration: none;
+  color: white;
+  -webkit-transition: background-color 0.2s ease-out;
+          transition: background-color 0.2s ease-out;
+  white-space: nowrap;
+}
+
+.navdrawer-container ul li {
+  border-bottom-style: solid;
+  border-width: 1px;
+  border-color: white;
+  padding: 0;
+}
+
+.navdrawer-container ul li .sub-menu {
+  padding: 0px 10px;
+  background-color: $base-300;
+  max-height: 0;
+  color: $base-800;
+  overflow: hidden;
+  -webkit-transition: max-height 0.3s ease-out;
+          transition: max-height 0.3s ease-out;
+
+  .item {
+    padding: 3px 10px;
+    color: $base-800;
+    border-bottom: 1px solid $base-800;
+  }
+
+  .item:active {
+    color: white;
+  }
+
+  .item:last-of-type {
+    border-bottom: 0;
+  }
+
+  input {
+    color: $base-800;
+    border: 0;
+    height: 35px;
+    width: 100%;
+    border-radius: $radius;
+    padding: 3px;
+    margin: 7px 0px;
+  }
+
+  .num {
+    width: 50px;
+    text-align: center;
+  }
+
+  .submit-button {
+    // float: right;
+    background-color: $base-800;
+    color: white;
+    text-align: center;
+    border-radius: $radius;
+    padding: 4px 15px;
+    border: 1px solid white;
+    margin-bottom: 7px;
+  }
+
+  .submit-button:active {
+    background-color: $base-600;
+  }
+
+}
+
+.navdrawer-container ul li .sub-menu.open {
+  max-height: 500px;
+  overflow: auto;
+  -webkit-transition: max-height 0.3s ease-out;
+          transition: max-height 0.3s ease-out;
+}
+
+.navdrawer-container ul li::before {
+  content: none;
+}
+
+.navdrawer-container ul li a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.navdrawer-container ul li a:focus {
+  background-color: rgba(255, 255, 255, 0.3);
+  outline: 0;
+}
+
+.navdrawer-container ul li a:active {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+main {
+  margin: 0;
+  /* Height of the header */
+  padding: $app-bar-height 0px 0px 0px;
+  min-height: 100%;
+}
+
+/* for counter, queue and add buttons */
+.general-container {
+  display: inline-block;
+  width: 50%; /* will be dynamic */
+  float: left;
+}
+
+.counters {
+  height: 60px;
+  background: $lightgrey;
+}
+
+.counter-container {
+  height: 100%;
+  border-bottom: 5px #8BC34A solid;
+  -webkit-transition: background-color 0.2s ease-out;
+          transition: background-color 0.2s ease-out;
+}
+
+.counter-container.processing {
+  border-bottom: 5px #EF5350 solid;
+  background-color: $grey-300;
+
+  .counter {
+    background-color: $red-100;
+  }
+
+}
+
+.counter {
+  background: $base-100;
+  width: 30px;
+  line-height: 30px;
+  margin: 13px auto;
+  text-align: center;
+  border-radius: $radius;
+}
+
+.queue-container {
+  padding-bottom: 65px; /* height of the add button container */
+}
+
+.person {
+  background-color: $base-300;
+  line-height: 40px;
+  width: 40px;
+  margin: auto;
+  margin-top: 5px;
+  border-radius: 30px;
+  text-align: center;
+  -webkit-transition: background-color 0.2s ease-out;
+          transition: background-color 0.2s ease-out;
+}
+
+.person.processing {
+  background-color: $red-200;
+}
+
+.person.selected {
+  background-color: $grey-600;
+  color: white;
+}
+
+.add-buttons {
+  background: $grey-600;
+  height: 60px;
+  width: 100%;
+  position: fixed;
+  bottom: 0px;
+}
+
+.add-button {
+  color: white;
+  font-size: 1.8em;
+  width: 40px;
+  height: 40px;
+  line-height: 38px;
+  border-radius: 30px;
+  border: 1px solid white;
+  text-align: center;
+  margin: 10px auto;
+  background-color: transparent;
+  -webkit-transition: background-color 0.2s ease-out;
+          transition: background-color 0.2s ease-out;
+}
+
+.add-button.clicked {
+  background-color: $grey-400;
+}
+
+.add-button:after {
+  content: "+";
+}
+
+.dialog {
+  height: 110px;
+  width: 100%;
+  position: fixed;
+  bottom: 0px;
+  padding: 10px;
+  text-align: center;
+  background: $grey-300;
+  -webkit-transition: -webkit-transform 0.3s ease-out;
+          transition: transform 0.3s ease-out;
+  -webkit-transform: translate(0, 110px);
+          transform: translate(0, 110px);
+
+  .btn {
+    width: 49%;
+    line-height: 45px;
+    margin: 5px 0px;
+    display: inline-block;
+    border-radius: $radius;
+    font-weight: 300;
+  }
+
+  .confirm {
+    float: left;
+    background: $grey-600;
+    color: white;
+  }
+
+  .cancel {
+    float: right;
+    color: $grey-600;
+    border: 1px solid $grey-600;
+  }
+
+}
+
+.dialog.open {
+  -webkit-transform: translate(0, 0px);
+          transform: translate(0, 0px);
+}
+
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 300;
+  src: url(/fonts/Lato-Light.ttf);
+}
+
+@font-face {
+  font-family: 'Lato';
+  font-style: italic;
+  font-weight: 300;
+  src: url(/fonts/Lato-LightItalic.ttf);
+}
+
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/fonts/Lato-Regular.ttf);
+}
+
+@font-face {
+  font-family: 'Lato';
+  font-style: italic;
+  font-weight: 400;
+  src: url(/fonts/Lato-Italic.ttf);
+}
+
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  src: url(/fonts/Lato-Bold.ttf);
+}

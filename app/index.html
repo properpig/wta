@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="A front-end template that helps you build fast, modern mobile web apps.">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Matcha</title>
+
+    <!-- build:js scripts/libs/libs.min.js -->
+    <script src="scripts/libs/jquery-1.11.1.min.js"></script>
+    <!-- endbuild -->
+
+    <!-- Add to homescreen -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Fallback to homescreen for Chrome <39 on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Web Starter Kit">
+    <link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Web Starter Kit">
+    <link rel="apple-touch-icon" href="images/touch/apple-touch-icon.png">
+
+    <!-- Tile icon for Win8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
+    <meta name="msapplication-TileColor" content="#3372DF">
+
+    <!-- SEO: If your mobile URL is different from the desktop URL, add a canonical link to the desktop page https://developers.google.com/webmasters/smartphone-sites/feature-phones -->
+    <!--
+    <link rel="canonical" href="http://www.example.com/">
+    -->
+
+    <!-- Page styles -->
+    <link rel="stylesheet" href="styles/main.css">
+  </head>
+  <body>
+    <header class="app-bar">
+      <div class="app-bar-container">
+        <button class="menu"><img src="images/hamburger.svg" alt="Menu"></button>
+        <div class="app-title"><img src="images/waiting_icon_white.svg" alt="Logo"><span class="place-name"></span></div>
+      </div>
+      <button class="refresh"><img src="images/refresh.svg" alt="refresh"></button>
+    </header>
+
+    <nav class="navdrawer-container">
+      <h4>Menu</h4>
+      <ul>
+        <li class="menu-change">
+          <a>Change Place</a>
+          <div class="sub-menu place-list">
+          </div>
+        </li>
+        <li class="menu-add">
+          <a>Add New Place</a>
+          <div class="sub-menu add-place-dialog">
+            <input id="place_name" type="text" placeholder="Name of Place"> <br />
+            No. of Counters: <input id="num_counters" class="num" type="number" placeholder="e.g. 1">
+            <div class="submit-button">Submit</div>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <main>
+
+      <div class="counters">
+      </div>
+
+      <div class="queues">
+      </div>
+
+      <div class="add-buttons">
+      </div>
+
+      <div class="dialog">
+        <div class="text">Remove from queue?</div>
+        <div class="btn confirm">Confirm</div>
+        <div class="btn cancel">Cancel</div>
+      </div>
+
+    </main>
+
+    <!-- build:js scripts/main.min.js -->
+    <script src="scripts/main.js"></script>
+    <script src="scripts/queue.js"></script>
+    <!-- endbuild -->
+
+  </body>
+</html>
