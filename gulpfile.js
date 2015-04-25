@@ -27,6 +27,7 @@ var runSequence = require('run-sequence');
 var browserSync = require('browser-sync');
 var pagespeed = require('psi');
 var reload = browserSync.reload;
+var replace = require('gulp-replace');
 
 var localURL = 'http://0.0.0.0:8080'
 
@@ -119,6 +120,7 @@ gulp.task('html', function () {
     .pipe(assets)
     // Concatenate and minify JavaScript
     .pipe($.if('*.js', $.uglify({preserveComments: 'some'})))
+    .pipe(replace('http://192.168.2.113:8080', ''))
     // Remove any unused CSS
     // Note: if not using the Style Guide, you can delete it from
     //       the next line to only include styles your project uses.
