@@ -78,7 +78,7 @@ gulp.task('copy', function () {
 // Copy web fonts to dist
 gulp.task('fonts', function () {
   return gulp.src(['app/fonts/**'])
-    .pipe(gulp.dest('dist/fonts'))
+    .pipe(gulp.dest('dist/styles/fonts'))
     .pipe($.size({title: 'fonts'}));
 });
 
