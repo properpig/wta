@@ -36,12 +36,18 @@
 
     <!-- Page styles -->
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/analysis.css">
+
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+    <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+    <script src="scripts/libs/pluginMissingData.js"></script>
+
   </head>
   <body>
     <header class="app-bar">
       <div class="app-bar-container">
         <button class="menu"><img src="images/hamburger.svg" alt="Menu"></button>
-        <div class="app-title"><img src="images/waiting_icon_white.svg" alt="Logo"><span class="place-name"></span></div>
+        <div class="app-title"><img src="images/waiting_icon_white.svg" alt="Logo"><span class="place-name">Analysis</span></div>
       </div>
       <button class="refresh"><img src="images/refresh.svg" alt="refresh"></button>
     </header>
@@ -50,20 +56,7 @@
       <h4>Menu</h4>
       <ul>
         <li class="menu-change">
-          <a>Change Place</a>
-          <div class="sub-menu place-list">
-          </div>
-        </li>
-        <li class="menu-add">
-          <a>Add New Place</a>
-          <div class="sub-menu add-place-dialog">
-            <input id="place_name" type="text" placeholder="Name of Place"> <br />
-            No. of Counters:
-            <input id="num_counters" class="num" type="number" placeholder="e.g. 1">
-            <div class="pool-option pooled">Pooled</div><div class="pool-option non-pooled">Non-pooled</div>
-            <div class="clear"></div>
-            <div class="submit-button">Submit</div>
-          </div>
+          <a href="index.html">Back to Queues</a>
         </li>
         <li class="menu-analysis">
           <a>Analysis</a>
@@ -74,27 +67,28 @@
     </nav>
 
     <main>
+      <div class="analysis-name"></div>
 
-      <div class="counters">
-      </div>
+      <section>
+        <div class="heading">Empirical Distribution of Interarrival Times</div>
+        <div class="ct-chart ct-golden-section" id="interarrival"></div>
+      </section>
 
-      <div class="queues">
-      </div>
+      <section>
+        <div class="heading">Empirical Distribution of Waiting Times</div>
+        <div class="ct-chart ct-golden-section" id="waiting_time"></div>
+      </section>
 
-      <div class="add-buttons">
-      </div>
-
-      <div class="dialog">
-        <div class="text">Remove from queue?</div>
-        <div class="btn confirm">Confirm</div>
-        <div class="btn cancel">Cancel</div>
-      </div>
+      <section>
+        <div class="heading">Histogram of Processing Times</div>
+        <div class="ct-chart ct-golden-section" id="processing"></div>
+      </section>
 
     </main>
 
-    <!-- build:js scripts/main.min.js -->
+    <!-- build:js scripts/analysis.min.js -->
     <script src="scripts/main.js"></script>
-    <script src="scripts/queue.js"></script>
+    <script src="scripts/analysis.js"></script>
     <!-- endbuild -->
 
   </body>

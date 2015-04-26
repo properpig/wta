@@ -7,14 +7,15 @@ db = sqlite3.connect(DB_STRING)
 cursor = db.cursor()
 cursor.execute('''CREATE TABLE places (
         Name varchar(30) primary key,
-        VisitDate datetime,
-        NumCounters integer
+        VisitDate timestamp,
+        NumCounters integer,
+        IsPooled integer
       );''')
 cursor.execute('''CREATE TABLE people(
       ID int primary key,
-      TimeArrived datetime,
-      TimeServed datetime,
-      TimeLeft datetime,
+      TimeArrived timestamp,
+      TimeServed timestamp,
+      TimeLeft timestamp,
       Queue varchar(1),
       WaitingTime integer,
       ProcessingTime integer,
@@ -23,9 +24,10 @@ cursor.execute('''CREATE TABLE people(
 
 # add one record to the places table
 visit_date = datetime.now()
-cursor.execute('''INSERT INTO places(Name, VisitDate, NumCounters)
-                  VALUES(?, ?, ?)''', ('matcha', visit_date, 4))
+cursor.execute('''INSERT INTO places(Name, VisitDate, NumCounters, IsPooled)
+                  VALUES(?, ?, ?)''', ('matcha', visit_date, 4, 0))
 
 db.commit()
 
 db.close()
+

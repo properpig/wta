@@ -234,6 +234,28 @@ main {
     background-color: $base-600;
   }
 
+  .pool-option {
+    width: 49%;
+    margin-bottom: 5px;
+    display: inline-block;
+    text-align: center;
+    border: 1px solid $base-800;
+    border-radius: $radius;
+    padding: 3px;
+    background-color: transparent;
+    -webkit-transition: background-color 0.3s ease-out;
+            transition: background-color 0.3s ease-out;
+    float: left;
+  }
+
+  .pool-option.selected {
+    background-color: $base-100;
+  }
+
+  .non-pooled {
+    float: right;
+  }
+
 }
 
 .navdrawer-container ul li .sub-menu.open {
@@ -306,7 +328,12 @@ main {
 }
 
 .queue-container {
+  min-height: 50px; /* height of a person */
   padding-bottom: 65px; /* height of the add button container */
+}
+
+.queue-container.X {
+  width: 100%;
 }
 
 .person {

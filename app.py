@@ -3,6 +3,7 @@ import random
 import string
 import sqlite3
 import json
+import math
 from datetime import datetime
 
 import cherrypy
@@ -28,12 +29,12 @@ class StringGenerator(object):
             return json.dumps(output)
 
     @cherrypy.expose
-    def add_place(self, place, num_counters):
+    def add_place(self, place, num_counters, is_pooled):
         visit_date = datetime.now()
         with sqlite3.connect(DB_STRING) as c:
             cursor = c.cursor();
-            cursor.execute("INSERT INTO places (Name, VisitDate, NumCounters) VALUES (?, ?, ?)",
-                            [place, visit_date, num_counters])
+            cursor.execute("INSERT INTO places (Name, VisitDate, NumCounters, IsPooled) VALUES (?, ?, ?, ?)",
+                            [place, visit_date, num_counters, 1 if is_pooled == "true" else 0])
             cursor.close()
             c.commit()
             return json.dumps({'status': 'success'})
@@ -42,10 +43,10 @@ class StringGenerator(object):
     def retrieve_queue_info(self, place):
         with sqlite3.connect(DB_STRING) as c:
             cursor = c.cursor();
-            cursor.execute("SELECT NumCounters FROM places WHERE Name=?",
+            cursor.execute("SELECT NumCounters, IsPooled FROM places WHERE Name=?",
                         [place])
             result = cursor.fetchone()
-            output = {'place': place, 'num_counters': result[0]}
+            output = {'place': place, 'num_counters': result[0], 'is_pooled': result[1]}
             cursor.close()
             c.commit()
             return json.dumps(output)
@@ -83,13 +84,13 @@ class StringGenerator(object):
             return message
 
     @cherrypy.expose
-    def process_person(self, person_id):
+    def process_person(self, person_id, queue_id):
         served_time = datetime.now()
 
         with sqlite3.connect(DB_STRING) as c:
             cursor = c.cursor();
-            cursor.execute("UPDATE people SET TimeServed=? WHERE RowID=?",
-                [served_time, person_id])
+            cursor.execute("UPDATE people SET TimeServed=?, Queue=? WHERE RowID=?",
+                [served_time, queue_id, person_id])
             cursor.close()
             c.commit()
             return json.dumps({"status": "success"})
@@ -117,6 +118,147 @@ class StringGenerator(object):
             cursor.close()
             c.commit()
             return json.dumps({"status": "success"})
+
+    @cherrypy.expose
+    def get_analysis(self, place):
+
+        with sqlite3.connect(DB_STRING, detect_types=sqlite3.PARSE_DECLTYPES) as c:
+            cursor = c.cursor();
+
+            ## start by getting the interarrival times
+            cursor.execute("SELECT RowID, Queue, TimeArrived, TimeServed, TimeLeft, WaitingTime, ProcessingTime FROM people WHERE place=? ORDER BY TimeArrived",
+                        [place])
+            # store them because we'll be going through the list again later
+            people_list = []
+            row = cursor.fetchone()
+            people_list.append(row)
+
+            prev_time_arrived = row[2] #initialise first value
+            print(prev_time_arrived)
+            all_rows = cursor.fetchall()
+
+            output = {}
+            interarrival_times = []
+            corresponding_queues = [] # stores the list of queue ids that the people arrived at
+
+            for row in all_rows:
+                interarrival_time = (row[2] - prev_time_arrived).total_seconds()
+                interarrival_times.append(interarrival_time)
+                corresponding_queues.append(row[1].encode('ascii','ignore'))
+
+                #update the previous time arrived
+                prev_time_arrived = row[2]
+                people_list.append(row)
+
+            output['interarrival'] = getSeriesAndLabelsScatter(interarrival_times, corresponding_queues)
+
+            ## compute the waiting time and processing time for each person
+            # and store the times
+            waiting_times = []
+            processing_times = []
+            corresponding_queues = []
+
+            for person in people_list:
+                # RowID, Queue, TimeArrived, TimeServed, TimeLeft, WaitingTime, ProcessingTime
+
+                # we only want to analyse the people that have been served
+                # or those who left
+                if not person[3] or not person[4] or person[5] == -1:
+                    continue # skip
+
+                if not person[5]: # means WaitingTime hasnt been computed before
+                    waiting_time = (person[3] - person[2]).total_seconds()
+                    processing_time = (person[4] - person[3]).total_seconds()
+                else:
+                    waiting_time = person[5]
+                    processing_time = person[6]
+
+                waiting_times.append(waiting_time)
+                processing_times.append(processing_time)
+                corresponding_queues.append(person[1].encode('ascii','ignore'))
+
+                # update the row in the database
+                cursor.execute("UPDATE people SET WaitingTime=?, ProcessingTime=? WHERE RowID=?",
+                    [waiting_time, processing_time, person[0]])
+
+            output['waiting'] = getSeriesAndLabelsScatter(waiting_times, corresponding_queues)
+            output['processing'] = getSeriesAndLabelsHistogram(processing_times, corresponding_queues)
+
+            cursor.close()
+            c.commit()
+            return json.dumps(output)
+
+def getSeriesAndLabelsScatter(list_of_times, corresponding_queues):
+    time_range = max(list_of_times)
+    # divide this up into 100 - this will be our precision on the chart
+    precision = 100
+    time_slice = math.ceil(time_range / precision)
+
+    # get the list of unique queue ids. we'll have to create one series for each
+    unique_queue_ids = list(set(corresponding_queues))
+    unique_queue_ids.sort()
+    series_dict = {}
+    for queue_id in unique_queue_ids:
+        series_dict[queue_id] = []
+        # initialise the null values. this will later hold our y-values
+        for i in range(0, precision):
+            series_dict[queue_id].append(None)
+
+    # initialise a list to store the x-labels of our chart
+    labels = []
+    for i in range(0, precision):
+        labels.append(int(time_slice * i))
+
+    # then we store the y-values at the appropriate 'slot'
+    num_points = len(list_of_times)
+    list_of_times.sort()
+    for i in range(0, num_points):
+        interarrival_time = list_of_times[i]
+        queue_id = corresponding_queues[i]
+        bin = int(math.floor(interarrival_time / time_slice))
+        series_dict[queue_id][bin] = round(i / float(num_points), 3)
+
+    # convert the series dict back to a list (required by chartist)
+    series = []
+    for key in series_dict:
+        series.append(series_dict[key])
+
+    return {'series': series, 'labels': labels}
+
+def getSeriesAndLabelsHistogram(list_of_times, corresponding_queues):
+    time_range = max(list_of_times)
+    number_of_bars = 10 # the number of bars we want to have on the histogram
+    time_slice = math.ceil(time_range / number_of_bars)
+
+    # get the list of unique queue ids. we'll have to create one series for each
+    unique_queue_ids = list(set(corresponding_queues))
+    unique_queue_ids.sort()
+    series_dict = {}
+    for queue_id in unique_queue_ids:
+        series_dict[queue_id] = []
+        # initialise the null values. this will later hold our y-values
+        for i in range(0, number_of_bars):
+            series_dict[queue_id].append(0)
+
+    # initialise a list to store the x-labels of our chart
+    labels = []
+    for i in range(0, number_of_bars):
+        labels.append(int(time_slice * i))
+
+    # then we store the y-values at the appropriate 'slot'
+    num_points = len(list_of_times)
+    for i in range(0, num_points):
+        interarrival_time = list_of_times[i]
+        queue_id = corresponding_queues[i]
+        bin = int(math.floor(interarrival_time / time_slice))
+        series_dict[queue_id][bin] += 1
+
+    # convert the series dict back to a list (required by chartist)
+    series = []
+    for key in series_dict:
+        series.append(series_dict[key])
+
+    return {'series': series, 'labels': labels}
 
 def CORS():
     cherrypy.response.headers["Access-Control-Allow-Origin"] = "*"

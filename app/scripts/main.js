@@ -54,7 +54,10 @@
   // populate the list of available places
   $.get(ip + "/retrieve_places", function( data ) {
     $.each(data, function(index, item) {
+      // add it to the list of places on the navigation menu
       $('.place-list').append('<div class="item" onclick="changePlace(\'' + item + '\');">' + item + '</div>');
+      // add to the list of analysis options as well
+      $('.analysis-list').append('<div class="item" onclick="launchAnalysis(\'' + item + '\');">' + item + '</div>');
     });
   });
 
@@ -62,15 +65,26 @@
     $(this).find('.sub-menu').addClass('open');
   });
 
+  $('.pool-option').click(function() {
+    // remove selected class from both buttons first
+    $('.pool-option').removeClass('selected');
+    // add selected class to the clicked button
+    $(this).addClass('selected');
+  });
+
   $('.submit-button').click(function(){
     var place = $('#place_name').val();
     var num_counters = $('#num_counters').val();
+    var is_pooled = false;
+    if ($('.pool-option.pooled').hasClass('selected')) {
+      is_pooled = true;
+    }
 
     if (place.length === 0 || parseInt(num_counters) < 1) {
       return;
     }
 
-    $.get(ip + "/add_place", {'place': place, 'num_counters': num_counters}, function( data ) {
+    $.get(ip + "/add_place", {'place': place, 'num_counters': num_counters, 'is_pooled': is_pooled}, function( data ) {
       console.log(data);
       localStorage.setItem("place", place);
       location.reload();
@@ -82,7 +96,11 @@
 
 /*exported changePlace */
 function changePlace(name) {
-  localStorage.setItem("place", name);
+  localStorage.setItem('place', name);
   location.reload();
 }
 
+/*exported launchAnalysis */
+function launchAnalysis(name) {
+  location.href = 'analysis.html?place=' + name;
+}

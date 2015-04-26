@@ -10,9 +10,16 @@
 
   var place = localStorage.getItem('place');
   var num_counters;
+  var is_pooled;
   $.get( ip + "/retrieve_queue_info", {'place': place}, function( data ) {
     place = data.place;
     num_counters = data.num_counters;
+    is_pooled = false;
+
+    if (data.is_pooled === 1) {
+      is_pooled = true;
+    }
+
     $('.app-title .place-name').text(place);
 
     // iterate through the alphabets (they are our queue ids)
@@ -20,12 +27,27 @@
       var queue_id = String.fromCharCode(i);
       $('.counters').append(getCounterHTML(queue_id));
       $('.queues').append(getQueueHTML(queue_id));
-      $('.add-buttons').append(getButtonHTML(queue_id));
+
+      if (!is_pooled) {
+        // only need add buttons for each queue if its non-pooled
+        $('.add-buttons').append(getButtonHTML(queue_id));
+      }
     }
 
     // set the width of each column so they all fit
     var col_percent = 100/num_counters;
     $('.general-container').css({'width': col_percent+'%'});
+
+    // for a pooled queue, add a single button (and override the column width)
+    // we use X to denote the pooled queue
+    if (is_pooled) {
+      $('.add-buttons').append(getButtonHTML('X'));
+      $('.button-container').css({'width': '100%'});
+
+      // we also add a special queue X for the pooled queue
+      $('.queues').append(getQueueHTML('X'));
+      $('.queue-container').css({'padding-bottom': '0'});
+    }
   })
   .done(function() {
     // can only do this after we get the numbers
@@ -62,12 +84,22 @@
 
       // now we find the corresponding queue to get the id of the first person
       // first check if there are any people queuing
-      if ($('.queue-container.' + queue_id + ' .person').length === 0) {
+      if ($('.queue-container.' + queue_id + ' .person').length === 0 && $('.queue-container.X .person').length === 0) {
         console.log('error, there is no one in the queue!');
         return;
       }
 
       var person = $('.queue-container.' + queue_id + ' .person').first();
+
+      // if its a pooled queue
+      if (is_pooled) {
+        // and the person is approaching the counter, get the first person in the pooled queue
+        if (!$(this).hasClass('processing')) {
+          person = $('.queue-container.X .person').first();
+        }
+        // otherwise, its just the first person at the counter (default)
+      }
+
       var person_id = person.text();
 
       var this_counter = $(this);
@@ -75,12 +107,20 @@
       // this counter is about to process the next person
       if (!$(this).hasClass('processing')) {
         // inform the backend
-        $.get( ip + "/process_person", {'person_id': person_id}, function( data ) {
+        $.get( ip + "/process_person", {'person_id': person_id, 'queue_id': queue_id}, function( data ) {
           console.log(data);
         })
         .done(function() {
           person.addClass('processing');
+
+          // if this is a pooled queue, we have to 'shift' the person to the counter
+          if (is_pooled) {
+            $('.queue-container.' + queue_id).append(person.clone());
+            person.remove();
+          }
+
           this_counter.addClass('processing'); // visual update to the counter
+          navigator.vibrate(100);
         });
 
       } else {
@@ -91,6 +131,7 @@
         .done(function() {
           person.remove();
           this_counter.removeClass('processing'); // visual update to the counter
+          navigator.vibrate(100);
         });
       }
     });
@@ -116,6 +157,7 @@
       })
       .done(function() {
         $('.queue-container.' + queue_id).append(getPersonHTML(person_id));
+        navigator.vibrate(100);
       });
 
     });
