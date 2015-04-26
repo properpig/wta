@@ -6,9 +6,25 @@
   var place = window.location.search.substring(1).split('=')[1];
   $('.analysis-name').text('Place: ' + place);
 
-  // initialise the chart
+  // initialise the data
   $.get(ip + '/get_analysis', {'place': place}, function(data) {
 
+    // populate the basic info about the place first
+    $('.place-info .visit-date').text(data.visit_date);
+    $('.place-info .num-counters').text(data.num_counters);
+    if (data.is_pooled === 1) {
+      $('.place-info .pooled-boolean').text('Pooled');
+    } else {
+      $('.place-info .pooled-boolean').text('Non-Pooled');
+    }
+    $('.place-info .num-datapoints').text(data.num_datapoints);
+
+    // populate the summary statistics
+    $.each(data.summary, function(index, item) {
+      $('.stat-box.' + item[0] + ' .stat-num').text(item[1].toFixed(2));
+    });
+
+    // initialise the line charts
     var options = {
       showLine: false,
       chartPadding: {

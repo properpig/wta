@@ -4,6 +4,7 @@ import string
 import sqlite3
 import json
 import math
+import numpy
 from datetime import datetime
 
 import cherrypy
@@ -183,6 +184,81 @@ class StringGenerator(object):
 
             output['waiting'] = getSeriesAndLabelsScatter(waiting_times, corresponding_queues)
             output['processing'] = getSeriesAndLabelsHistogram(processing_times, corresponding_queues)
+
+            ## get information about the place
+            cursor.execute("SELECT VisitDate, NumCounters, IsPooled FROM places WHERE Name=?",
+                        [place])
+            place_info = cursor.fetchone()
+            output['visit_date'] = place_info[0].strftime("%d/%m/%Y %H:%M")
+            output['num_counters'] = place_info[1]
+            output['is_pooled'] = place_info[2]
+            output['num_datapoints'] = len(waiting_times)
+
+            ## compute the summary statistics (all in seconds)
+            summary = [] # stores all the stats
+
+            # average processing time and average interarrival time
+            avg_a = sum(interarrival_times) / float(len(interarrival_times))
+            avg_p = sum(processing_times) / float(len(processing_times))
+
+            # get the standard deviations for a and p
+            sd_a = numpy.std(interarrival_times)
+            sd_p = numpy.std(processing_times)
+
+            # calculate the coefficient of variation
+            cv_a = sd_a/avg_a
+            cv_p = sd_p/avg_p
+
+            # get the number of counters
+            m = place_info[1]
+
+            # calculate the utilisation
+            utilisation = avg_p / (avg_a * m)
+
+            ## calculations for pooled
+            if place_info[2]:
+
+                time_in_queue = (
+                    (avg_p/m) *
+                    pow(utilisation, math.sqrt(2*(m+1))-1)/(1 - utilisation) *
+                    (cv_a**2 + cv_p**2)/2
+                )
+
+                inventory_in_queue = (1/avg_a) * time_in_queue
+                inventory_in_process = m * utilisation
+
+                total_inventory = inventory_in_queue + inventory_in_process
+
+            else: ## calculations for non-pooled
+
+                time_in_queue = (
+                    avg_p *
+                    (utilisation / (1 - utilisation)) *
+                    (cv_a**2 + cv_p**2)/2
+                )
+
+                # the effective interarrival time for each counter
+                effective_a = avg_a * m
+
+                # the following inventories are for each queue (not the total)
+                inventory_in_queue = (1/effective_a) * time_in_queue
+                inventory_in_process = utilisation
+
+                total_inventory = (inventory_in_queue + inventory_in_process) * m
+
+            # also compute the average empirical waiting time
+            avg_w = sum(waiting_times) / float(len(waiting_times))
+
+            summary.append(['avg_a', avg_a])
+            summary.append(['avg_p', avg_p])
+            summary.append(['avg_w', avg_w])
+            summary.append(['time_in_queue', time_in_queue])
+            summary.append(['inventory_in_queue', inventory_in_queue])
+            summary.append(['inventory_in_process', inventory_in_process])
+            summary.append(['total_inventory', total_inventory])
+            summary.append(['utilisation', utilisation*100])
+
+            output['summary'] = summary
 
             cursor.close()
             c.commit()

@@ -13,9 +13,60 @@ section:nth-child(odd) {
   text-align: center;
 }
 
+.place-info {
+  text-align: center;
+  padding-bottom: 5px;
+  color: $grey-600;
+  font-style: italic;
+}
+
 .heading {
   font-size: 1.1em;
   line-height: 1.1em;
   text-align: center;
   padding: 10px;
+}
+
+.summary {
+
+  text-align: center;
+  padding-bottom: 10px;
+
+  .stat-box {
+    /*background: white;*/
+    width: 48%;
+    margin: 3px 1%;
+    display: inline-block;
+    border: 1px solid $base-600;
+  }
+
+  .stat-box:nth-child(odd) {
+    margin-left: 0;
+  }
+
+  .stat-name {
+    background: $base-600;
+    color: white;
+  }
+
+  .stat-num {
+    font-size: 1.4em;
+    padding: 5px;
+  }
+
+}
+
+@media (min-width: 600px) {
+  .summary {
+    .stat-box {
+      /*background: white;*/
+      width: 24%;
+      margin: 3px .5%;
+      float: left;
+    }
+
+    .stat-box:nth-child(odd) {
+      margin: 3px .5%;
+    }
+  }
 }
